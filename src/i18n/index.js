@@ -1,10 +1,31 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-// Traductions
 const resources = {
   fr: {
     translation: {
+      player: {
+        title: 'Lecteur MP3',
+        upload: 'Déposez votre fichier MP3 ici',
+        stop: 'Arrêter',
+        start: 'Démarrer',
+        speed: 'Vitesse : {{speed}}x',
+        drop_file: 'Déposez un fichier MP3 ici',
+        or: 'ou',
+        browse: 'Parcourir',
+        speed_options: {
+          slow: 'Lent',
+          normal: 'Normal',
+          fast: 'Rapide'
+        }
+      },
+      history: {
+        title: 'Historique',
+        empty: 'Aucun fichier lu récemment',
+        playedAt: 'Écouté le {{date}}',
+        duration: 'Durée : {{time}}',
+        clear: 'Effacer l\'historique'
+      },
       settings: {
         title: 'Paramètres',
         language: 'Langue',
@@ -15,21 +36,37 @@ const resources = {
         notifications: 'Notifications',
         coming_soon: 'Bientôt disponible'
       },
-      player: {
-        no_file: 'Aucun fichier sélectionné',
-        drop_file: 'Déposez un fichier MP3 ici',
-        or: 'ou',
-        browse: 'Parcourir',
-        speed: {
-          normal: 'Normal',
-          slow: 'Lent',
-          fast: 'Rapide'
-        }
+      navigation: {
+        player: 'Lecteur',
+        history: 'Historique',
+        settings: 'Paramètres'
       }
     }
   },
   en: {
     translation: {
+      player: {
+        title: 'MP3 Player',
+        upload: 'Drop your MP3 file here',
+        stop: 'Stop',
+        start: 'Start',
+        speed: 'Speed: {{speed}}x',
+        drop_file: 'Drop MP3 file here',
+        or: 'or',
+        browse: 'Browse',
+        speed_options: {
+          slow: 'Slow',
+          normal: 'Normal',
+          fast: 'Fast'
+        }
+      },
+      history: {
+        title: 'History',
+        empty: 'No recently played files',
+        playedAt: 'Played on {{date}}',
+        duration: 'Duration: {{time}}',
+        clear: 'Clear history'
+      },
       settings: {
         title: 'Settings',
         language: 'Language',
@@ -40,41 +77,51 @@ const resources = {
         notifications: 'Notifications',
         coming_soon: 'Coming soon'
       },
-      player: {
-        no_file: 'No file selected',
-        drop_file: 'Drop MP3 file here',
-        or: 'or',
-        browse: 'Browse',
-        speed: {
-          normal: 'Normal',
-          slow: 'Slow',
-          fast: 'Fast'
-        }
+      navigation: {
+        player: 'Player',
+        history: 'History',
+        settings: 'Settings'
       }
     }
   },
   ar: {
     translation: {
+      player: {
+        title: 'مشغل MP3',
+        upload: 'اسحب ملف MP3 هنا',
+        stop: 'إيقاف',
+        start: 'تشغيل',
+        speed: 'السرعة: {{speed}}x',
+        drop_file: 'اسحب ملف MP3 هنا',
+        or: 'أو',
+        browse: 'تصفح',
+        speed_options: {
+          slow: 'بطيء',
+          normal: 'عادي',
+          fast: 'سريع'
+        }
+      },
+      history: {
+        title: 'السجل',
+        empty: 'لا توجد ملفات مشغلة مؤخراً',
+        playedAt: 'تم التشغيل في {{date}}',
+        duration: 'المدة: {{time}}',
+        clear: 'مسح السجل'
+      },
       settings: {
         title: 'الإعدادات',
         language: 'اللغة',
-        theme: 'الوضع الداكن',
+        theme: 'المظهر الداكن',
         theme_on: 'مفعل',
         theme_off: 'معطل',
         playback_speed: 'سرعة التشغيل',
         notifications: 'الإشعارات',
         coming_soon: 'قريباً'
       },
-      player: {
-        no_file: 'لم يتم اختيار ملف',
-        drop_file: 'اسحب ملف MP3 هنا',
-        or: 'أو',
-        browse: 'تصفح',
-        speed: {
-          normal: 'عادي',
-          slow: 'بطيء',
-          fast: 'سريع'
-        }
+      navigation: {
+        player: 'المشغل',
+        history: 'السجل',
+        settings: 'الإعدادات'
       }
     }
   }
