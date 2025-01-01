@@ -9,9 +9,9 @@ const MainLayout = () => {
 
   return (
     <div className="min-h-screen bg-itunes-bg font-sf">
-      {!isMobile && <Header />}
-      <div className={`flex flex-col ${isMobile ? 'h-[calc(100vh-4rem)]' : 'h-screen'}`}>
-        <main className="flex-1 overflow-y-auto">
+      <Header showTitle={!isMobile} />
+      <div className={`flex flex-col ${isMobile ? 'h-[calc(100vh-8rem)]' : 'h-[calc(100vh-4rem)]'}`}>
+        <main className="flex-1 overflow-y-auto p-4">
           <Outlet />
         </main>
       </div>

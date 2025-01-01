@@ -127,51 +127,25 @@ const MP3Player = () => {
   };
 
   return (
-    <div className="min-h-screen bg-itunes-bg font-sf text-itunes-text">
-      <audio ref={audioRef} />
-      <header className="p-4 border-b border-itunes-border">
-        <h1 className="text-2xl font-bold tracking-tight">SoundPlayer</h1>
-      </header>
-
-      <div className="max-w-2xl mx-auto p-8">
-        <div
-          {...getRootProps()}
-          className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors
-            ${isDragActive 
-              ? 'border-itunes-accent bg-itunes-button/50' 
-              : 'border-itunes-border hover:border-itunes-accent'}
-            ${error ? 'border-red-500 bg-red-500/10' : ''}`}
-          role="button"
-          aria-label="Zone de dépôt pour fichier MP3"
+    <div className="flex flex-col items-center justify-center w-full max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold text-itunes-text mb-8">SoundPlayer</h1>
+      
+      <div className="w-full p-6 bg-gray-800 bg-opacity-50 rounded-lg shadow-lg">
+        <div 
+          {...getRootProps()} 
+          className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+            ${isDragActive ? 'border-itunes-accent bg-gray-700' : 'border-gray-600 hover:border-gray-500'}`}
         >
           <input {...getInputProps()} />
-          
-          <div className="mb-4">
-            <p className="text-lg mb-4">
-              {isDragActive
-                ? 'Déposez le fichier ici...'
-                : 'Glissez un fichier MP3 ou utilisez le bouton ci-dessous'}
-            </p>
-            <button
-              type="button"
-              onClick={handleButtonClick}
-              className="px-6 py-3 bg-itunes-button text-itunes-text rounded-full
-                hover:bg-itunes-hover focus:outline-none focus:ring-2 focus:ring-itunes-accent
-                transition-colors"
-            >
-              Sélectionner un fichier MP3
-            </button>
-          </div>
-          
-          <p className="text-sm text-itunes-secondary">
+          <p className="text-lg text-gray-300 mb-4">
+            Glissez un fichier MP3 ou utilisez le bouton ci-dessous
+          </p>
+          <button className="bg-itunes-accent text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-colors">
+            Sélectionner un fichier MP3
+          </button>
+          <p className="text-sm text-gray-400 mt-4">
             Maximum: 100MB
           </p>
-          
-          {error && (
-            <p className="text-sm text-red-400 mt-2" role="alert">
-              {error}
-            </p>
-          )}
         </div>
 
         {metadata && (
