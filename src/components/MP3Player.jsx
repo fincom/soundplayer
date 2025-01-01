@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useFileHandler } from '../hooks/useFileHandler';
