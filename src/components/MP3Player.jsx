@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useAudioPlayer } from '../hooks/useAudioPlayer';
 import { useFileHandler } from '../hooks/useFileHandler';
@@ -8,7 +8,8 @@ import { extractMetadata } from '../utils/metadata';
 import SpeedSelector from './SpeedSelector';
 
 const MP3Player = () => {
-  const [file, setFile] = useState(null);
+  const [audioFile, setAudioFile] = useState(null);
+  const [error, setError] = useState(null);
   const [settings, setSettings] = useSettings();
   const [playbackRate, setPlaybackRate] = useState(settings.playbackRate);
   const [metadata, setMetadata] = useState(null);
@@ -24,8 +25,8 @@ const MP3Player = () => {
     setPlaybackRate: updatePlaybackRate
   } = useAudioPlayer();
 
-  const { handleFile, error, clearError } = useFileHandler(async (file) => {
-    setFile(file);
+  const { handleFile, clearError } = useFileHandler(async (file) => {
+    setAudioFile(file);
     const url = URL.createObjectURL(file);
     if (audioRef.current) {
       audioRef.current.src = url;
@@ -39,35 +40,39 @@ const MP3Player = () => {
     setMetadata(meta);
   });
 
-  const onDrop = useCallback(acceptedFiles => {
-    if (acceptedFiles && acceptedFiles.length > 0) {
-      const mp3File = acceptedFiles[0];
-      handleFile(mp3File);
+  const onDrop = useCallback((acceptedFiles) => {
+    const file = acceptedFiles[0];
+    if (file && file.type === 'audio/mpeg') {
+      if (file.size > 100 * 1024 * 1024) { // 100MB limit
+        setError('Le fichier est trop volumineux. Maximum 100MB.');
+        return;
+      }
+      handleFile(file);
+      setError(null);
+    } else {
+      setError('Veuillez sélectionner un fichier MP3 valide.');
     }
   }, [handleFile]);
 
-  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
       'audio/mpeg': ['.mp3']
     },
-    maxSize: 100 * 1024 * 1024,
-    multiple: false,
-    noClick: true,
-    noKeyboard: false
+    maxSize: 100 * 1024 * 1024, // 100MB
+    multiple: false
   });
 
-  const handleButtonClick = (e) => {
-    e.stopPropagation();
-    open();
+  const handleButtonClick = () => {
+    document.getElementById('fileInput').click();
   };
 
   useEffect(() => {
     const savePlaybackPosition = () => {
-      if (file && currentTime > 0) {
+      if (audioFile && currentTime > 0) {
         setSettings(current => ({
           ...current,
-          lastPlayedFile: file.name,
+          lastPlayedFile: audioFile.name,
           lastPlayedTime: currentTime
         }));
       }
@@ -80,7 +85,7 @@ const MP3Player = () => {
       clearInterval(interval);
       window.removeEventListener('beforeunload', savePlaybackPosition);
     };
-  }, [file, currentTime, setSettings]);
+  }, [audioFile, currentTime, setSettings]);
 
   const handleRateChange = (rate) => {
     const newRate = parseFloat(rate);
@@ -136,108 +141,121 @@ const MP3Player = () => {
           className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
             ${isDragActive ? 'border-itunes-accent bg-gray-700' : 'border-gray-600 hover:border-gray-500'}`}
         >
-          <input {...getInputProps()} />
+          <input {...getInputProps()} id="fileInput" />
           <p className="text-lg text-gray-300 mb-4">
-            Glissez un fichier MP3 ou utilisez le bouton ci-dessous
+            {isDragActive 
+              ? 'Déposez le fichier ici...'
+              : 'Glissez un fichier MP3 ou utilisez le bouton ci-dessous'}
           </p>
-          <button className="bg-itunes-accent text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-colors">
+          <button 
+            onClick={handleButtonClick}
+            className="bg-itunes-accent text-white px-6 py-3 rounded-full hover:bg-opacity-90 transition-colors"
+          >
             Sélectionner un fichier MP3
           </button>
           <p className="text-sm text-gray-400 mt-4">
             Maximum: 100MB
           </p>
+          {error && (
+            <p className="text-red-500 mt-4">{error}</p>
+          )}
         </div>
 
-        {metadata && (
-          <div className="mt-8 p-6 bg-itunes-button rounded-xl" role="region" aria-label="Informations sur le fichier">
-            <h2 className="text-xl font-semibold mb-4">Informations</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h3 className="text-itunes-secondary mb-2">Piste</h3>
-                <dl className="space-y-2">
-                  <div>
-                    <dt className="text-itunes-secondary text-sm">Titre</dt>
-                    <dd className="text-itunes-text">{metadata.titre}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-itunes-secondary text-sm">Artiste</dt>
-                    <dd className="text-itunes-text">{metadata.artiste}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-itunes-secondary text-sm">Album</dt>
-                    <dd className="text-itunes-text">{metadata.album}</dd>
-                  </div>
-                </dl>
+        {audioFile && (
+          <div className="mt-8">
+            <audio ref={audioRef} controls className="w-full">
+              <source src={URL.createObjectURL(audioFile)} type="audio/mpeg" />
+              Votre navigateur ne supporte pas l'élément audio.
+            </audio>
+            <div className="mt-8 space-y-6">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={togglePlay}
+                  className="w-16 h-16 rounded-full bg-itunes-button flex items-center justify-center
+                    hover:bg-itunes-hover focus:outline-none focus:ring-2 focus:ring-itunes-accent
+                    transition-colors"
+                  aria-label={isPlaying ? 'Mettre en pause' : 'Lancer la lecture'}
+                >
+                  <span className="text-2xl">
+                    {isPlaying ? '⏸️' : '▶️'}
+                  </span>
+                </button>
+
+                <div className="flex-1 mx-8">
+                  <SpeedSelector 
+                    value={playbackRate} 
+                    onChange={handleRateChange}
+                  />
+                </div>
               </div>
-              <div>
-                <h3 className="text-itunes-secondary mb-2">Détails</h3>
-                <dl className="space-y-2">
-                  <div>
-                    <dt className="text-itunes-secondary text-sm">Année</dt>
-                    <dd className="text-itunes-text">{metadata.annee}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-itunes-secondary text-sm">Genre</dt>
-                    <dd className="text-itunes-text">{metadata.genre}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-itunes-secondary text-sm">Bitrate</dt>
-                    <dd className="text-itunes-text">{metadata.bitrate} kbps</dd>
-                  </div>
-                </dl>
+
+              <div className="space-y-2">
+                <div 
+                  className="h-2 bg-itunes-button rounded-full overflow-hidden cursor-pointer"
+                  onClick={handleProgressClick}
+                  role="slider"
+                  aria-label="Progression de la lecture"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow={progress}
+                >
+                  <div
+                    className="h-full bg-itunes-accent rounded-full transition-all"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-sm text-itunes-secondary">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
+              </div>
+
+              <div className="mt-4 flex justify-between items-center p-4 bg-itunes-button rounded-lg">
+                <div className="text-lg font-medium">{audioFile.name}</div>
+                <div className="text-sm text-itunes-secondary">{formatFileSize(audioFile.size)}</div>
               </div>
             </div>
-          </div>
-        )}
-
-        {file && (
-          <div className="mt-8 space-y-6">
-            <div className="flex items-center justify-between">
-              <button
-                onClick={togglePlay}
-                className="w-16 h-16 rounded-full bg-itunes-button flex items-center justify-center
-                  hover:bg-itunes-hover focus:outline-none focus:ring-2 focus:ring-itunes-accent
-                  transition-colors"
-                aria-label={isPlaying ? 'Mettre en pause' : 'Lancer la lecture'}
-              >
-                <span className="text-2xl">
-                  {isPlaying ? '⏸️' : '▶️'}
-                </span>
-              </button>
-
-              <div className="flex-1 mx-8">
-                <SpeedSelector 
-                  value={playbackRate} 
-                  onChange={handleRateChange}
-                />
+            {metadata && (
+              <div className="mt-8 p-6 bg-itunes-button rounded-xl" role="region" aria-label="Informations sur le fichier">
+                <h2 className="text-xl font-semibold mb-4">Informations</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-itunes-secondary mb-2">Piste</h3>
+                    <dl className="space-y-2">
+                      <div>
+                        <dt className="text-itunes-secondary text-sm">Titre</dt>
+                        <dd className="text-itunes-text">{metadata.titre}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-itunes-secondary text-sm">Artiste</dt>
+                        <dd className="text-itunes-text">{metadata.artiste}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-itunes-secondary text-sm">Album</dt>
+                        <dd className="text-itunes-text">{metadata.album}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                  <div>
+                    <h3 className="text-itunes-secondary mb-2">Détails</h3>
+                    <dl className="space-y-2">
+                      <div>
+                        <dt className="text-itunes-secondary text-sm">Année</dt>
+                        <dd className="text-itunes-text">{metadata.annee}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-itunes-secondary text-sm">Genre</dt>
+                        <dd className="text-itunes-text">{metadata.genre}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-itunes-secondary text-sm">Bitrate</dt>
+                        <dd className="text-itunes-text">{metadata.bitrate} kbps</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <div 
-                className="h-2 bg-itunes-button rounded-full overflow-hidden cursor-pointer"
-                onClick={handleProgressClick}
-                role="slider"
-                aria-label="Progression de la lecture"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                aria-valuenow={progress}
-              >
-                <div
-                  className="h-full bg-itunes-accent rounded-full transition-all"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <div className="flex justify-between text-sm text-itunes-secondary">
-                <span>{formatTime(currentTime)}</span>
-                <span>{formatTime(duration)}</span>
-              </div>
-            </div>
-
-            <div className="mt-4 flex justify-between items-center p-4 bg-itunes-button rounded-lg">
-              <div className="text-lg font-medium">{file.name}</div>
-              <div className="text-sm text-itunes-secondary">{formatFileSize(file.size)}</div>
-            </div>
+            )}
           </div>
         )}
       </div>
