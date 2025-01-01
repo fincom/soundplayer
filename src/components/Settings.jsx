@@ -8,13 +8,13 @@ const Settings = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {!isMobile && <h1 className="text-3xl font-bold text-itunes-text mb-8">Paramètres</h1>}
+      {!isMobile && <h1 className="text-3xl font-bold mb-8">Paramètres</h1>}
       
       <div className="space-y-6">
-        <div className="flex items-center justify-between p-4 bg-gray-800 bg-opacity-50 rounded-lg">
+        <div className="flex items-center justify-between p-4 bg-itunes-button hover:bg-itunes-hover rounded-lg transition-colors duration-200">
           <div className="flex items-center space-x-3">
-            <span className="text-lg text-itunes-text">Thème sombre</span>
-            <span className="text-sm text-gray-400">
+            <span className="text-lg">Thème sombre</span>
+            <span className="text-sm text-itunes-secondary">
               {isDark ? 'Activé' : 'Désactivé'}
             </span>
           </div>
@@ -32,12 +32,12 @@ const Settings = () => {
           </button>
         </div>
 
-        <div className="p-4 bg-gray-800 bg-opacity-50 rounded-lg">
-          <label className="text-lg text-itunes-text block mb-2">
+        <div className="p-4 bg-itunes-button hover:bg-itunes-hover rounded-lg transition-colors duration-200">
+          <label className="text-lg block mb-2">
             Vitesse de lecture par défaut
           </label>
           <select 
-            className="w-full p-2 bg-gray-700 rounded text-white border border-gray-600 focus:border-itunes-accent focus:ring-1 focus:ring-itunes-accent outline-none"
+            className="w-full p-2 bg-itunes-bg rounded border border-itunes-border focus:border-itunes-accent focus:ring-1 focus:ring-itunes-accent outline-none"
             defaultValue="1"
           >
             <option value="0.5">0.5x</option>
@@ -49,10 +49,10 @@ const Settings = () => {
           </select>
         </div>
 
-        <div className="flex items-center justify-between p-4 bg-gray-800 bg-opacity-50 rounded-lg">
+        <div className="flex items-center justify-between p-4 bg-itunes-button hover:bg-itunes-hover rounded-lg transition-colors duration-200">
           <div className="flex items-center space-x-3">
-            <span className="text-lg text-itunes-text">Notifications</span>
-            <span className="text-sm text-gray-400">Bientôt disponible</span>
+            <span className="text-lg">Notifications</span>
+            <span className="text-sm text-itunes-secondary">Bientôt disponible</span>
           </div>
           <button
             className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-600 cursor-not-allowed opacity-50"

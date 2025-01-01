@@ -5,12 +5,16 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme');
-    return saved ? JSON.parse(saved) : true; // Par défaut en mode sombre
+    return saved ? JSON.parse(saved) : true;
   });
 
   useEffect(() => {
     localStorage.setItem('theme', JSON.stringify(isDark));
-    document.documentElement.classList.toggle('dark', isDark);
+    if (isDark) {
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+    }
   }, [isDark]);
 
   return (
