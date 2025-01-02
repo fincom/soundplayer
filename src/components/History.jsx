@@ -1,110 +1,155 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { format } from 'date-fns';
-import { fr, enUS, arSA } from 'date-fns/locale';
-import { Trash2, Clock, Music } from 'lucide-react';
+import { Clock, Trash2, Play, Settings } from 'lucide-react';
+import { LanguageContext } from '../contexts/LanguageContext';
+import { useHistory } from '../hooks/useHistory';
+import Typography from './shared/Typography';
+import Button from './shared/Button';
+
+const StatCard = ({ icon: Icon, label, value }) => (
+  <div className="bg-itunes-surface p-4 rounded-lg flex items-center space-x-3">
+    <Icon className="w-5 h-5 text-itunes-accent" />
+    <div>
+      <div className="text-sm text-itunes-secondary">{label}</div>
+      <div className="font-medium">{value}</div>
+    </div>
+  </div>
+);
+
+const HistoryItem = ({ entry, selected, onSelect, formatDate, t }) => (
+  <div
+    className={`bg-itunes-button p-4 rounded-lg transition-all duration-200 hover:bg-itunes-hover cursor-pointer
+      ${selected ? 'border-2 border-itunes-accent' : 'border-2 border-transparent'}`}
+    onClick={onSelect}
+    role="button"
+    aria-pressed={selected}
+    tabIndex="0"
+  >
+    <div className="flex justify-between items-start">
+      <div className="flex-1">
+        <h3 className="font-medium flex items-center gap-2">
+          <Play className="w-4 h-4" />
+          {entry.fileName}
+        </h3>
+        <p className="text-sm text-itunes-secondary flex items-center gap-2">
+          <Clock className="w-3 h-3" />
+          {formatDate(entry.timestamp)}
+        </p>
+      </div>
+      <div className="text-right text-sm text-itunes-secondary">
+        <p>{t('history.speed')}: {entry.playbackRate}x</p>
+        <p>{t('history.duration')}: {formatTime(entry.duration)}</p>
+      </div>
+    </div>
+    {entry.metadata && Object.keys(entry.metadata).length > 0 && (
+      <div className="mt-2 pt-2 border-t border-itunes-border text-sm grid grid-cols-2 gap-2">
+        {entry.metadata.title && (
+          <p className="text-itunes-secondary">
+            {t('history.title')}: {entry.metadata.title}
+          </p>
+        )}
+        {entry.metadata.artist && (
+          <p className="text-itunes-secondary">
+            {t('history.artist')}: {entry.metadata.artist}
+          </p>
+        )}
+      </div>
+    )}
+  </div>
+);
 
 const History = () => {
-  const { t, i18n } = useTranslation();
-  const history = JSON.parse(localStorage.getItem('playHistory') || '[]');
+  const { t } = useTranslation();
+  const { language } = useContext(LanguageContext);
+  const { history, clearHistory, getStats, formatDate } = useHistory(language);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const stats = getStats();
 
-  const getLocale = () => {
-    switch (i18n.language) {
-      case 'fr':
-        return fr;
-      case 'ar':
-        return arSA;
-      default:
-        return enUS;
+  const handleClearSelected = () => {
+    if (selectedItems.length > 0) {
+      clearHistory(selectedItems);
+      setSelectedItems([]);
     }
   };
 
-  const formatDate = (date) => {
-    return format(new Date(date), 'PPpp', {
-      locale: getLocale()
-    });
+  const formatTime = (seconds) => {
+    if (!seconds) return '0:00';
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
-
-  const formatDuration = (duration) => {
-    const minutes = Math.floor(duration / 60);
-    const seconds = Math.floor(duration % 60);
-    return t('history.duration_format', {
-      minutes,
-      seconds: seconds.toString().padStart(2, '0')
-    });
-  };
-
-  const handleClearHistory = () => {
-    if (window.confirm(t('history.clear_confirm'))) {
-      localStorage.removeItem('playHistory');
-      window.location.reload();
-    }
-  };
-
-  if (history.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
-        <div className="text-center space-y-6">
-          <Clock className="w-16 h-16 text-itunes-secondary mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-itunes-text">
-            {t('history.empty')}
-          </h2>
-          <p className="text-lg text-itunes-secondary max-w-md mx-auto">
-            {t('history.empty_description')}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-2xl font-bold mb-2">{t('history.title')}</h1>
-          <p className="text-itunes-secondary">
-            {t('history.subtitle', { count: history.length })}
-          </p>
-        </div>
-        <button
-          onClick={handleClearHistory}
-          className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
-          aria-label={t('history.clear_aria')}
-        >
-          <Trash2 className="w-4 h-4" />
-          <span>{t('history.clear')}</span>
-        </button>
+    <div 
+      className="max-w-2xl mx-auto p-6 space-y-6"
+      role="region"
+      aria-label={t('history.title')}
+    >
+      <div className="flex justify-between items-center">
+        <Typography.h1>{t('history.title')}</Typography.h1>
+        {selectedItems.length > 0 && (
+          <Button
+            variant="primary"
+            onClick={handleClearSelected}
+            className="inline-flex items-center gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            {t('history.delete_selected')} ({selectedItems.length})
+          </Button>
+        )}
       </div>
 
-      <div className="space-y-4">
-        {history.map((item, index) => (
-          <div
-            key={item.id || index}
-            className="p-6 bg-itunes-button hover:bg-itunes-hover rounded-lg transition-all duration-200 transform hover:scale-[1.01]"
-          >
-            <div className="flex items-start space-x-4">
-              <div className="p-3 bg-itunes-accent bg-opacity-10 rounded-full">
-                <Music className="w-6 h-6 text-itunes-accent" />
-              </div>
-              <div className="flex-grow">
-                <h3 className="font-medium text-lg mb-1">
-                  {item.fileName || t('history.unknown_file')}
-                </h3>
-                <div className="flex flex-wrap gap-4 text-sm text-itunes-secondary">
-                  <p>
-                    {t('history.played_at', {
-                      date: formatDate(item.date)
-                    })}
-                  </p>
-                  <p className="flex items-center">
-                    <Clock className="w-4 h-4 mr-1" />
-                    {formatDuration(item.duration)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Statistiques */}
+      <div className="grid grid-cols-2 gap-4">
+        <StatCard
+          icon={Play}
+          label={t('history.total_listens')}
+          value={stats.total}
+        />
+        <StatCard
+          icon={Clock}
+          label={t('history.total_duration')}
+          value={formatTime(stats.totalDuration)}
+        />
+        <StatCard
+          icon={Settings}
+          label={t('history.avg_speed')}
+          value={`${stats.avgPlaybackRate}x`}
+        />
+        <StatCard
+          icon={Clock}
+          label={t('history.last_listen')}
+          value={stats.lastListen ? formatDate(stats.lastListen) : t('history.never')}
+        />
+      </div>
+
+      {/* Liste d'historique */}
+      <div className="space-y-2">
+        {history.map(entry => (
+          <HistoryItem
+            key={entry.id}
+            entry={entry}
+            selected={selectedItems.includes(entry.id)}
+            onSelect={() => {
+              setSelectedItems(prev =>
+                prev.includes(entry.id)
+                  ? prev.filter(id => id !== entry.id)
+                  : [...prev, entry.id]
+              );
+            }}
+            formatDate={formatDate}
+            t={t}
+          />
         ))}
+
+        {history.length === 0 && (
+          <div className="text-center py-12 bg-itunes-surface rounded-lg">
+            <Play className="w-12 h-12 mx-auto mb-4 text-itunes-secondary" />
+            <Typography.body className="text-itunes-secondary">
+              {t('history.empty')}
+            </Typography.body>
+          </div>
+        )}
       </div>
     </div>
   );
