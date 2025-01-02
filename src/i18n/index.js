@@ -53,7 +53,17 @@ const resources = {
         speed: 'Vitesse',
         duration: 'Durée',
         title_meta: 'Titre',
-        artist: 'Artiste'
+        artist: 'Artiste',
+        no_results: 'Aucun résultat pour votre recherche',
+        listened_duration: 'Écouté : {{time}}',
+        completion_rate: 'Taux de complétion : {{rate}}%',
+        listening_period: 'Période d\'écoute',
+        first_listen: 'Première écoute : {{date}}',
+        most_listened: 'Le plus écouté : {{name}}',
+        listened: 'Écouté',
+        completion: 'Complété',
+        search: 'Rechercher...',
+        filter_period: 'Filtrer par période'
       },
       settings: {
         title: 'Paramètres',
@@ -137,7 +147,17 @@ const resources = {
         speed: 'Speed',
         duration: 'Duration',
         title_meta: 'Title',
-        artist: 'Artist'
+        artist: 'Artist',
+        no_results: 'No results found for your search',
+        listened_duration: 'Listened: {{time}}',
+        completion_rate: 'Completion rate: {{rate}}%',
+        listening_period: 'Listening period',
+        first_listen: 'First listen: {{date}}',
+        most_listened: 'Most listened: {{name}}',
+        listened: 'Listened',
+        completion: 'Completed',
+        search: 'Search...',
+        filter_period: 'Filter by period'
       },
       settings: {
         title: 'Settings',
@@ -221,7 +241,17 @@ const resources = {
         speed: 'السرعة',
         duration: 'المدة',
         title_meta: 'العنوان',
-        artist: 'الفنان'
+        artist: 'الفنان',
+        no_results: 'لا توجد نتائج لبحثك',
+        listened_duration: 'تم الاستماع: {{time}}',
+        completion_rate: 'معدل الإكمال: {{rate}}%',
+        listening_period: 'فترة الاستماع',
+        first_listen: 'أول استماع: {{date}}',
+        most_listened: 'الأكثر استماعاً: {{name}}',
+        listened: 'تم الاستماع',
+        completion: 'مكتمل',
+        search: 'بحث...',
+        filter_period: 'تصفية حسب الفترة'
       },
       settings: {
         title: 'الإعدادات',

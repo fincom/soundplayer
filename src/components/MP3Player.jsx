@@ -5,9 +5,11 @@ import { Upload } from 'lucide-react';
 import PlayerControls from './PlayerControls';
 import Typography from './shared/Typography';
 import Button from './shared/Button';
+import { useHistory } from './useHistory'; // Assuming useHistory is defined in this file
 
 const MP3Player = () => {
   const { t } = useTranslation();
+  const { startSession, updateSession, endSession } = useHistory('en'); // Assuming language is 'en'
   const [file, setFile] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -42,6 +44,7 @@ const MP3Player = () => {
     const onEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
+      endSession();
     };
 
     audio.addEventListener('timeupdate', updateTime);
@@ -55,21 +58,43 @@ const MP3Player = () => {
     };
   }, []);
 
+  const handlePlay = () => {
+    if (!isPlaying) {
+      startSession(file, playbackRate, duration, {});
+    }
+    audioRef.current.play();
+    setIsPlaying(true);
+  };
+
+  const handlePause = () => {
+    audioRef.current.pause();
+    setIsPlaying(false);
+    updateSession(currentTime);
+  };
+
+  const handleStop = () => {
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+    setIsPlaying(false);
+    endSession();
+  };
+
+  const handlePlaybackRateChange = (newRate) => {
+    setPlaybackRate(newRate);
+    if (audioRef.current) {
+      audioRef.current.playbackRate = newRate;
+      updateSession(currentTime, newRate);
+    }
+  };
+
   const togglePlay = () => {
     if (!audioRef.current) return;
 
     if (isPlaying) {
-      audioRef.current.pause();
+      handlePause();
     } else {
-      audioRef.current.play();
+      handlePlay();
     }
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleRateChange = (rate) => {
-    if (!audioRef.current) return;
-    audioRef.current.playbackRate = rate;
-    setPlaybackRate(rate);
   };
 
   const formatTime = (time) => {
@@ -134,7 +159,7 @@ const MP3Player = () => {
             isPlaying={isPlaying}
             onPlayPause={togglePlay}
             playbackRate={playbackRate}
-            onSpeedChange={handleRateChange}
+            onSpeedChange={handlePlaybackRateChange}
             disabled={!file}
           />
           
