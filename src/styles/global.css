@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-background: #000000;
+    --color-surface: #1C1C1C;
+    --color-text: #FFFFFF;
+    --color-accent: #fc3c44;
+    --font-sf: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue';
+  }
+
+  .light {
+    --color-background: #FFFFFF;
+    --color-surface: #F5F5F7;
+    --color-text: #000000;
+  }
+
+  html {
+    @apply bg-itunes-bg text-itunes-text;
+  }
+
+  body {
+    font-family: var(--font-sf);
+  }
+
+  /* Support RTL pour l'arabe */
+  [dir="rtl"] {
+    .player-controls {
+      @apply space-x-reverse;
+    }
+    
+    .progress-time {
+      @apply flex-row-reverse;
+    }
+  }
+}
