@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@react-hook/media-query": "^1.1.1",
+    "date-fns": "^4.1.0",
     "i18next": "^24.2.0",
     "lucide-react": "^0.469.0",
     "music-metadata-browser": "^2.5.11",
